@@ -15,42 +15,42 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
 
-app.route('/user/:id')
+app.route('/student/:id')
   .get( (req, res) => {
-    console.log('GET request at /user/{id} with params %s', JSON.stringify(req.params));
+    console.log('GET request at /student/{id} with params %s', JSON.stringify(req.params));
     var id = req.params.id;
     if (!id){
-      console.error('No id passed with request. Usage is /user/{id}');
+      console.error('No id passed with request. Usage is /student/{id}');
       res.status(400).send();
     }
     else{
-      var data  = getUser(id);
-      console.log('\tReturning from GET request at /user/%s...', id);
+      var data  = getstudent(id);
+      console.log('\tReturning from GET request at /student/%s...', id);
       res.status(200).json(data);
     }
   })
   .post( (req, res) => {
-    console.log('POST request at /user with params %s and body %s', 
+    console.log('POST request at /student with params %s and body %s', 
                 JSON.stringify(req.params), JSON.stringify(req.body));
     var id = req.params.id;
     if (!id){
-      console.error('No id passed with request. Usage is /user/{id}');
+      console.error('No id passed with request. Usage is /student/{id}');
       res.status(400).send();
       return;
     }
     else{
-      var data  = getUser(id);
+      var data  = getstudent(id);
       var resCode = 200;
       if (!data){
         data = {};
         data.studentId = id;
-        mockData.users.push(data);
+        mockData.students.push(data);
         resCode = 201; //use 201 for created
       }
       for (var key in req.body){
         data[key] = req.body[key];
       }
-      console.log('\tReturning from POST request at /user/%s...',id);
+      console.log('\tReturning from POST request at /student/%s...',id);
       res.status(resCode).send();
     }
   });
@@ -136,40 +136,40 @@ app.route('/credentials')
   });
 
 
-app.route('/users')
+app.route('/students')
   .get( (req, res) => {
-    console.log('GET request at /users with params %s', 
+    console.log('GET request at /students with params %s', 
                 JSON.stringify(req.query));
     if (req.query.all === 'true'){
-      console.log("\tReturning all from GET request at /users...", JSON.stringify(mockData.users));
-      res.status(200).json(mockData.users);
+      console.log("\tReturning all from GET request at /students...", JSON.stringify(mockData.students));
+      res.status(200).json(mockData.students);
       return;
     }
     var page = req.query.page ? parseInt(req.query.page) : 1;
-    var maxPageNumber = Math.ceil(mockData.users.length/PAGE_SIZE);
+    var maxPageNumber = Math.ceil(mockData.students.length/PAGE_SIZE);
 
     if (page > maxPageNumber){
       res.status(400).send('Page out of bounds');
       return;
     }
 
-    var links = [generateLink('/users', {page : page}, 'cur')];
+    var links = [generateLink('/students', {page : page}, 'cur')];
     var data;
 
     if (page > 1){
-      links.push(generateLink('/users', {page : page - 1}, 'prev'));
+      links.push(generateLink('/students', {page : page - 1}, 'prev'));
     }
 
     var ndx = page * PAGE_SIZE - PAGE_SIZE; //Page number begins at 1 - need ndx to start at 0
 
     if (page < maxPageNumber){
-      links.push(generateLink('/users', {page : page + 1}, 'next'));
-      data = mockData.users.slice(ndx , ndx + PAGE_SIZE);
+      links.push(generateLink('/students', {page : page + 1}, 'next'));
+      data = mockData.students.slice(ndx , ndx + PAGE_SIZE);
     }
     else { //Already know page is < maxPage from earlier if condition
-      data = mockData.users.slice(ndx);
+      data = mockData.students.slice(ndx);
     }
-    console.log("\tReturning page %d from GET request at /users...", page);
+    console.log("\tReturning page %d from GET request at /students...", page);
     res.append('Link', links);
     res.status(200).json(data);
   });
@@ -192,10 +192,10 @@ function generateLink(path, queryParams, rel){
   return templ;
 }
 
-function getUser(id){
-  for (var i = 0; i < mockData.users.length; i++){
-    if (mockData.users[i].studentId === id){
-      return mockData.users[i];
+function getstudent(id){
+  for (var i = 0; i < mockData.students.length; i++){
+    if (mockData.students[i].studentId === id){
+      return mockData.students[i];
     }
   }
   return null;

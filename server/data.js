@@ -1,5 +1,5 @@
 module.exports = {
-  users: 
+  students: 
     [{
     studentId : '0001',
     firstName : 'Mycroft',
